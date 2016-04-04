@@ -107,3 +107,4 @@ void MainWindow::on_cboCommPort_activated(int index)
 {
     settings->setValue("commPort",ui->cboCommPort->itemText(index));
 }
+//test commit
