@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>284</width>
-    <height>242</height>
+    <width>293</width>
+    <height>302</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,11 +23,14 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>261</width>
-      <height>121</height>
+      <width>271</width>
+      <height>234</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>7</number>
+     </property>
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
@@ -43,11 +46,23 @@
      </item>
      <item>
       <widget class="QLabel" name="lblOutput">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
        <property name="text">
-        <string>1) Select Comm Port 2) Click Upload... 3) Select .hex file</string>
+        <string>1) Select Comm Port 2) Click Upload... 3) Select file</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <property name="indent">
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -58,23 +73,43 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QTextEdit" name="txtOutput">
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
-   <widget class="QTextEdit" name="txtOutput">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
-      <width>261</width>
-      <height>71</height>
+      <y>250</y>
+      <width>271</width>
+      <height>31</height>
      </rect>
     </property>
-    <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOn</enum>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btnSavePatches">
+       <property name="text">
+        <string>Save Patches...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnLoadPatches">
+       <property name="text">
+        <string>Load Patches...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
