@@ -12,6 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->txtOutput->setVisible(false);
     this->setFixedSize(this->size());
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(on_timer_timeout()));
+
     serial = new QSerialPort(this);
     serial->setBaudRate(QSerialPort::Baud9600);
     serial->setDataBits(QSerialPort::Data8);
@@ -19,11 +23,13 @@ MainWindow::MainWindow(QWidget *parent) :
     serial->setStopBits(QSerialPort::OneStop);
     serial->setFlowControl(QSerialPort::NoFlowControl);
     connect(serial,SIGNAL(readyRead()),this,SLOT(serialReceived()));
+
     avrprog = new QProcess(this);
     avrprog->setProcessChannelMode(QProcess::MergedChannels);
     avrprog->setReadChannel(QProcess::StandardOutput);
     connect(avrprog, SIGNAL(readyReadStandardOutput()), this, SLOT(avrOutput()));
     connect(avrprog, SIGNAL(finished(int , QProcess::ExitStatus )), this, SLOT(avrFinished(int , QProcess::ExitStatus )));
+
     populateCombo();
     int index = ui->cboCommPort->findText(settings->value("commPort").toString());
     ui->cboCommPort->setCurrentIndex(index);
@@ -139,11 +145,7 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
             if(serial->open(QIODevice::ReadWrite))
             {
                 serialDataRx.clear();
-                QByteArray data;
-                curEepromBlock = 0;
-                data.append(curEepromBlock);
-                serial->write(data);
-                ui->txtOutput->clear();
+                timer->start(500);
             }
             else
             {
@@ -225,6 +227,7 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
 void MainWindow::serialReceived()
 {
     QString line;
+    timer->stop();
     serialDataRx.append(serial->readAll());
     if(curTask==T_SP_SAVE_EEP)
     {
@@ -359,6 +362,18 @@ void MainWindow::serialReceived()
 
     }
 
+}
+
+void MainWindow::on_timer_timeout()
+{
+    QByteArray data;
+    if(curTask==T_SP_SAVE_EEP)
+    {
+        curEepromBlock = 0;
+        data.append(curEepromBlock);
+        serial->write(data);
+        ui->txtOutput->clear();
+    }
 }
 
 void MainWindow::on_chkShowConsole_stateChanged(int arg1)
