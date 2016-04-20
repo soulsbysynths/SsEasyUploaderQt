@@ -270,6 +270,7 @@ void MainWindow::serialReceived()
                 else
                 {
                     ui->lblOutput->setText("Failed. Could not write to file.");
+                    serial->close();
                     curTask = T_IDLE;
                     enableButtons(true);
                 }
@@ -323,6 +324,7 @@ void MainWindow::serialReceived()
                 if(line.size()==0)
                 {
                     ui->lblOutput->setText("Failed. Could not read file.");
+                    serial->close();
                     curTask = T_IDLE;
                     enableButtons(true);
                 }
@@ -349,6 +351,7 @@ void MainWindow::serialReceived()
             else
             {
                 ui->lblOutput->setText("Failed. Could not open file.");
+                serial->close();
                 curTask = T_IDLE;
                 enableButtons(true);
             }
@@ -379,18 +382,24 @@ void MainWindow::on_cboCommPort_activated(int index)
 void MainWindow::on_btnSavePatches_clicked()
 {
     QString filename = QFileDialog::getSaveFileName(this,"Save Patches",settings->value("spFilename").toString(),"EEPROM files (*.eep)");
-    settings->setValue("spFilename",filename);
-    curTask = T_SP_DL_FW;
-    backupFlash();
+    if(filename!=NULL)
+    {
+        settings->setValue("spFilename",filename);
+        curTask = T_SP_DL_FW;
+        backupFlash();
+    }
 }
 
 
 void MainWindow::on_btnLoadPatches_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this,"Load Patches", settings->value("lpFilename").toString() ,"EEPROM files (*.eep)");
-    settings->setValue("lpFilename",filename);
-    curTask = T_LP_DL_FW;
-    backupFlash();
+    if(fileExists(filename)==true)
+    {
+        settings->setValue("lpFilename",filename);
+        curTask = T_LP_DL_FW;
+        backupFlash();
+    }
 }
 void MainWindow::backupFlash()
 {
