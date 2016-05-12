@@ -25,3 +25,10 @@ FORMS    += mainwindow.ui
 macx:ICON = $${PWD}/icon.icns
 win32:RC_ICONS = icon.ico
 
+DISTFILES += \
+    Copying.txt \
+    avrdude.exe \
+    avrdude.conf \
+    EEPROM_Reader.hex \
+    EEPROM_writer.hex
+

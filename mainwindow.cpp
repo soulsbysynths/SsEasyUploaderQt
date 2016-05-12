@@ -1,8 +1,22 @@
+//Easy Uploader. AVRDUDE interface for use with Soulsby Atmegatron.
+//Copyright (C) 2016 Paul Soulsby
+
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+
+//You should have received a copy of the GNU General Public License
+//along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QtSerialPort/QSerialPortInfo>
-#include <QFileDialog>
-#include <QStandardPaths>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -411,9 +425,12 @@ void MainWindow::on_btnLoadPatches_clicked()
     QString filename = QFileDialog::getOpenFileName(this,"Load Patches", settings->value("lpFilename").toString() ,"EEPROM files (*.eep)");
     if(fileExists(filename)==true)
     {
-        settings->setValue("lpFilename",filename);
-        curTask = T_LP_DL_FW;
-        backupFlash();
+        if(QMessageBox::question(this, "Load Patches"  ,  "This will erase all existing patches in your device. OK to continue?", QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+        {
+            settings->setValue("lpFilename",filename);
+            curTask = T_LP_DL_FW;
+            backupFlash();
+        }
     }
 }
 void MainWindow::backupFlash()
