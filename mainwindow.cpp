@@ -177,13 +177,13 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
         break;
     case T_SP_UL_FW:
     case T_LP_UL_FW:
-        if(ui->txtOutput->toPlainText().contains("flash verified")==true)
-        {
-            ui->lblOutput->setText("Completed!");
-        }
-        else
-        {
-            ui->lblOutput->setText("Failed");
+    if(ui->txtOutput->toPlainText().contains("flash verified")==true)
+    {
+        ui->lblOutput->setText("Completed!");
+    }
+    else
+    {
+        ui->lblOutput->setText("Failed");
         }
         enableButtons(true);
         curTask = T_IDLE;
@@ -344,7 +344,7 @@ void MainWindow::serialReceived()
                     serial->close();
                     curTask = T_IDLE;
                     enableButtons(true);
-                }
+    }
                 else
                 {
                     ui->txtOutput->append(line);
@@ -360,7 +360,7 @@ void MainWindow::serialReceived()
                         if(ok==false)
                         {
                             ui->txtOutput->append("write error");
-                        }
+}
                     }
                     serial->write(outdata);
                 }
