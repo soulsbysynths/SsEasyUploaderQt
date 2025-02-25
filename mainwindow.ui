@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>293</width>
-    <height>302</height>
+    <width>291</width>
+    <height>310</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Easy Uploader 1.1</string>
+   <string>Easy Uploader 1.2.1</string>
   </property>
   <property name="windowIcon">
    <iconset>

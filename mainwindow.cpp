@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(this->size());
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(on_timer_timeout()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(on_timerTimeout()));
 
     serial = new QSerialPort(this);
     serial->setBaudRate(QSerialPort::Baud9600);
@@ -41,8 +41,12 @@ MainWindow::MainWindow(QWidget *parent) :
     avrprog = new QProcess(this);
     avrprog->setProcessChannelMode(QProcess::MergedChannels);
     avrprog->setReadChannel(QProcess::StandardOutput);
-    connect(avrprog, SIGNAL(readyReadStandardOutput()), this, SLOT(avrOutput()));
-    connect(avrprog, SIGNAL(finished(int , QProcess::ExitStatus )), this, SLOT(avrFinished(int , QProcess::ExitStatus )));
+    connect(avrprog, SIGNAL(readyReadStandardOutput()), this, SLOT(on_avrOutput()));
+    connect(avrprog, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(on_avrFinished(int,QProcess::ExitStatus)));
+    connect(avrprog, &QProcess::errorOccurred, [=](QProcess::ProcessError error)
+    {
+        qDebug() << "error enum val = " << error << "\n" << avrprog->errorString() << "\n";
+    });
 
     populateCombo();
     int index = ui->cboCommPort->findText(settings->value("commPort").toString());
@@ -79,23 +83,33 @@ void MainWindow::on_btnUploadFlash_clicked()
     {
         curTask = T_UPLOAD;
         settings->setValue("filename",filename);
-        QString prog =  "\"";
-        prog.append(qApp->applicationDirPath());
-        prog.append("//avrdude\" -c arduino -p m328p -C \"");
-        prog.append(qApp->applicationDirPath());
-        prog.append("/avrdude.conf\" -P ");
-        prog.append(settings->value("commPort").toString());
-        prog.append(" -U flash:w:\"");
-        prog.append(filename);
-        prog.append("\":i");
-        avrprog->start(prog);
-        enableButtons(false);
         ui->txtOutput->clear();
-        ui->txtOutput->insertPlainText(prog);
-        ui->txtOutput->insertPlainText("\n");
+        callAvrdude(filename,true);
+        enableButtons(false);
         ui->lblOutput->setText("Programming. Please wait...");
     }
 
+}
+void MainWindow::callAvrdude(QString hexPath, bool write)
+{
+    QString fileMode;
+    if(write)
+    {
+        fileMode = "w";
+    }
+    else
+    {
+        fileMode = "r";
+    }
+    QString prog = qApp->applicationDirPath() + "//avrdude";
+    QStringList args = {"-c","arduino","-p","m328p","-C", qApp->applicationDirPath() + "/avrdude.conf","-P",settings->value("commPort").toString(),"-U","flash:" + fileMode + ":"+ hexPath + ":i"};
+    avrprog->start(prog,args);
+    ui->txtOutput->insertPlainText(prog);
+    for(int i=0;i<args.length();++i )
+    {
+        ui->txtOutput->insertPlainText(" " + args.at(i));
+    }
+    ui->txtOutput->insertPlainText("\n");
 }
 void MainWindow::enableButtons(bool way)
 {
@@ -105,14 +119,22 @@ void MainWindow::enableButtons(bool way)
     ui->btnSavePatches->setEnabled(way);
 }
 
-void MainWindow::avrOutput()
+void MainWindow::on_avrOutput()
 {
     QByteArray output = avrprog->readAllStandardOutput();
     ui->txtOutput->insertPlainText(output);
     ui->txtOutput->ensureCursorVisible();
 }
-void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
+void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
 {
+    if(status==QProcess::CrashExit)
+    {
+        ui->txtOutput->append("Crashed");
+    }
+    else
+    {
+        ui->txtOutput->append("Success:" + QString::number(data));
+    }
     switch(curTask)
     {
     case T_UPLOAD:
@@ -132,18 +154,8 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
         {
             ui->lblOutput->setText("Uploading EEPROM reader. Please wait...");
             curTask = T_SP_UL_EEP;
-            QString prog =  "\"";
-            prog.append(qApp->applicationDirPath());
-            prog.append("//avrdude\" -c arduino -p m328p -C \"");
-            prog.append(qApp->applicationDirPath());
-            prog.append("/avrdude.conf\" -P ");
-            prog.append(settings->value("commPort").toString());
-            prog.append(" -U flash:w:\"");
-            prog.append(qApp->applicationDirPath());
-            prog.append("/EEPROM_Reader.hex");
-            prog.append("\":i");
-            avrprog->start(prog);
             ui->txtOutput->clear();
+            callAvrdude(qApp->applicationDirPath() + "/EEPROM_Reader.hex",true);
         }
         else
         {
@@ -177,13 +189,13 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
         break;
     case T_SP_UL_FW:
     case T_LP_UL_FW:
-    if(ui->txtOutput->toPlainText().contains("flash verified")==true)
-    {
-        ui->lblOutput->setText("Completed!");
-    }
-    else
-    {
-        ui->lblOutput->setText("Failed");
+        if(ui->txtOutput->toPlainText().contains("flash verified")==true)
+        {
+            ui->lblOutput->setText("Completed!");
+        }
+        else
+        {
+            ui->lblOutput->setText("Failed");
         }
         enableButtons(true);
         curTask = T_IDLE;
@@ -193,18 +205,8 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
         {
             ui->lblOutput->setText("Uploading EEPROM writer. Please wait...");
             curTask = T_LP_UL_EEP;
-            QString prog =  "\"";
-            prog.append(qApp->applicationDirPath());
-            prog.append("//avrdude\" -c arduino -p m328p -C \"");
-            prog.append(qApp->applicationDirPath());
-            prog.append("/avrdude.conf\" -P ");
-            prog.append(settings->value("commPort").toString());
-            prog.append(" -U flash:w:\"");
-            prog.append(qApp->applicationDirPath());
-            prog.append("/EEPROM_writer.hex");
-            prog.append("\":i");
-            avrprog->start(prog);
             ui->txtOutput->clear();
+            callAvrdude(qApp->applicationDirPath() + "/EEPROM_writer.hex", true);
         }
         else
         {
@@ -235,6 +237,8 @@ void MainWindow::avrFinished(int data, QProcess::ExitStatus status)
             enableButtons(true);
             curTask = T_IDLE;
         }
+        break;
+    default:
         break;
     }
 }
@@ -273,16 +277,7 @@ void MainWindow::serialReceived()
                     ui->txtOutput->clear();
                     ui->lblOutput->setText("Restoring flash. Please wait...");
                     curTask = T_SP_UL_FW;
-                    QString prog =  "\"";
-                    prog.append(qApp->applicationDirPath());
-                    prog.append("//avrdude\" -c arduino -p m328p -C \"");
-                    prog.append(qApp->applicationDirPath());
-                    prog.append("/avrdude.conf\" -P ");
-                    prog.append(settings->value("commPort").toString());
-                    prog.append(" -U flash:w:\"");
-                    prog.append(qApp->applicationDirPath());
-                    prog.append("/atm_backup.hex\":i");
-                    avrprog->start(prog);
+                    callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex",true);
                 }
                 else
                 {
@@ -315,16 +310,7 @@ void MainWindow::serialReceived()
             ui->txtOutput->clear();
             ui->lblOutput->setText("Restoring flash. Please wait...");
             curTask = T_SP_UL_FW;
-            QString prog =  "\"";
-            prog.append(qApp->applicationDirPath());
-            prog.append("//avrdude\" -c arduino -p m328p -C \"");
-            prog.append(qApp->applicationDirPath());
-            prog.append("/avrdude.conf\" -P ");
-            prog.append(settings->value("commPort").toString());
-            prog.append(" -U flash:w:\"");
-            prog.append(qApp->applicationDirPath());
-            prog.append("/atm_backup.hex\":i");
-            avrprog->start(prog);
+            callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex", true);
         }
         else
         {
@@ -344,7 +330,7 @@ void MainWindow::serialReceived()
                     serial->close();
                     curTask = T_IDLE;
                     enableButtons(true);
-    }
+                }
                 else
                 {
                     ui->txtOutput->append(line);
@@ -360,7 +346,7 @@ void MainWindow::serialReceived()
                         if(ok==false)
                         {
                             ui->txtOutput->append("write error");
-}
+                        }
                     }
                     serial->write(outdata);
                 }
@@ -378,7 +364,7 @@ void MainWindow::serialReceived()
 
 }
 
-void MainWindow::on_timer_timeout()
+void MainWindow::on_timerTimeout()
 {
     QByteArray data;
     if(curTask==T_SP_SAVE_EEP)
@@ -411,7 +397,7 @@ void MainWindow::on_cboCommPort_activated(int index)
 void MainWindow::on_btnSavePatches_clicked()
 {
     QString filename = QFileDialog::getSaveFileName(this,"Save Patches",settings->value("spFilename").toString(),"EEPROM files (*.eep)");
-    if(filename!=NULL)
+    if(filename.isNull()==false && filename.isEmpty()==false)
     {
         settings->setValue("spFilename",filename);
         curTask = T_SP_DL_FW;
@@ -436,19 +422,8 @@ void MainWindow::on_btnLoadPatches_clicked()
 void MainWindow::backupFlash()
 {
     serial->setPortName(settings->value("commPort").toString());
-    QString prog =  "\"";
-    prog.append(qApp->applicationDirPath());
-    prog.append("//avrdude\" -c arduino -p m328p -C \"");
-    prog.append(qApp->applicationDirPath());
-    prog.append("/avrdude.conf\" -P ");
-    prog.append(settings->value("commPort").toString());
-    prog.append(" -U flash:r:\"");
-    prog.append(qApp->applicationDirPath());
-    prog.append("/atm_backup.hex\":i");
-    avrprog->start(prog);
-    enableButtons(false);
     ui->txtOutput->clear();
-    ui->txtOutput->insertPlainText(prog);
-    ui->txtOutput->insertPlainText("\n");
+    callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex",false);
+    enableButtons(false);
     ui->lblOutput->setText("Backing up flash. Please wait...");
 }
