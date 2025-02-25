@@ -59,7 +59,7 @@ public:
         verticalLayout->setSpacing(7);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName("verticalLayout");
-        verticalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
+        verticalLayout->setSizeConstraint(QLayout::SizeConstraint::SetDefaultConstraint);
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         cboCommPort = new QComboBox(layoutWidget);
         cboCommPort->setObjectName("cboCommPort");
@@ -73,8 +73,8 @@ public:
 
         lblOutput = new QLabel(layoutWidget);
         lblOutput->setObjectName("lblOutput");
-        lblOutput->setFrameShape(QFrame::NoFrame);
-        lblOutput->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+        lblOutput->setFrameShape(QFrame::Shape::NoFrame);
+        lblOutput->setAlignment(Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop);
         lblOutput->setWordWrap(true);
         lblOutput->setMargin(0);
         lblOutput->setIndent(0);
@@ -89,7 +89,7 @@ public:
 
         txtOutput = new QTextEdit(layoutWidget);
         txtOutput->setObjectName("txtOutput");
-        txtOutput->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        txtOutput->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
         txtOutput->setReadOnly(true);
 
         verticalLayout->addWidget(txtOutput);
@@ -124,7 +124,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Easy Uploader 1.2.1", nullptr));
+        MainWindow->setWindowTitle(QString());
         btnUploadFlash->setText(QCoreApplication::translate("MainWindow", "Upload...", nullptr));
         lblOutput->setText(QCoreApplication::translate("MainWindow", "1) Select Comm Port 2) Click Upload... 3) Select file", nullptr));
         chkShowConsole->setText(QCoreApplication::translate("MainWindow", "Show Console", nullptr));

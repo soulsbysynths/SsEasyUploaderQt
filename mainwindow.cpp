@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     populateCombo();
     int index = ui->cboCommPort->findText(settings->value("commPort").toString());
     ui->cboCommPort->setCurrentIndex(index);
+    this->setWindowTitle("Easy Uploader " + QApplication::applicationVersion());
 }
 void MainWindow::populateCombo()
 {
