@@ -43,14 +43,14 @@ public:
 
 private slots:
     void on_btnUploadFlash_clicked();
-    void avrOutput();
-    void avrFinished(int data , QProcess::ExitStatus status);
+    void on_avrOutput();
+    void on_avrFinished(int data , QProcess::ExitStatus status);
     void serialReceived();
     void on_chkShowConsole_stateChanged(int arg1);
     void on_cboCommPort_activated(int index);
     void on_btnSavePatches_clicked();
     void on_btnLoadPatches_clicked();
-    void on_timer_timeout();
+    void on_timerTimeout();
 private:
     enum Task {T_IDLE,T_UPLOAD,T_SP_DL_FW,T_SP_UL_EEP,T_SP_SAVE_EEP,T_SP_UL_FW,T_LP_DL_FW,T_LP_UL_EEP,T_LP_LOAD_EEP,T_LP_UL_FW};
     Ui::MainWindow *ui;
@@ -66,6 +66,7 @@ private:
     QByteArray serialDataRx;
     void backupFlash();
     const unsigned char BLOCKS = 64;
+    void callAvrdude(QString hexPath, bool write);
 };
 
 #endif // MAINWINDOW_H

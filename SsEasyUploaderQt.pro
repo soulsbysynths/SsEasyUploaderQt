@@ -25,6 +25,13 @@ FORMS    += mainwindow.ui
 macx:ICON = $${PWD}/icon.icns
 win32:RC_ICONS = icon.ico
 
+win32:VERSION = 1.2.1.0 # major.minor.patch.build
+else:VERSION = 1.2.1    # major.minor.patch
+
+macx {
+    QMAKE_POST_LINK += macdeployqt $$OUT_PWD/build/bin/$${TARGET}.app
+}
+
 DISTFILES += \
     Copying.txt \
     avrdude.exe \
