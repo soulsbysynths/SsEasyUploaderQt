@@ -67,6 +67,7 @@ private:
     void backupFlash();
     const unsigned char BLOCKS = 64;
     void callAvrdude(QString hexPath, bool write);
+    QString atmBackUpFilepath();
 };
 
 #endif // MAINWINDOW_H

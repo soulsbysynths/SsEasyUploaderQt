@@ -151,7 +151,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         curTask = T_IDLE;
         break;
     case T_SP_DL_FW:
-        if(ui->txtOutput->toPlainText().contains("writing output file")==true)
+        if(ui->txtOutput->toPlainText().contains("output file")==true)
         {
             ui->lblOutput->setText("Uploading EEPROM reader. Please wait...");
             curTask = T_SP_UL_EEP;
@@ -202,7 +202,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         curTask = T_IDLE;
         break;
     case T_LP_DL_FW:
-        if(ui->txtOutput->toPlainText().contains("writing output file")==true)
+        if(ui->txtOutput->toPlainText().contains("output file")==true)
         {
             ui->lblOutput->setText("Uploading EEPROM writer. Please wait...");
             curTask = T_LP_UL_EEP;
@@ -278,7 +278,8 @@ void MainWindow::serialReceived()
                     ui->txtOutput->clear();
                     ui->lblOutput->setText("Restoring flash. Please wait...");
                     curTask = T_SP_UL_FW;
-                    callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex",true);
+                    //callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex",true);
+                    callAvrdude(atmBackUpFilepath(),true);
                 }
                 else
                 {
@@ -311,7 +312,7 @@ void MainWindow::serialReceived()
             ui->txtOutput->clear();
             ui->lblOutput->setText("Restoring flash. Please wait...");
             curTask = T_SP_UL_FW;
-            callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex", true);
+            callAvrdude(atmBackUpFilepath(), true);
         }
         else
         {
@@ -363,6 +364,18 @@ void MainWindow::serialReceived()
 
     }
 
+}
+
+QString MainWindow::atmBackUpFilepath()
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir dir(path);
+    if (!dir.exists())
+    {
+        dir.mkpath(".");
+    }
+
+    return path + "/atm_backup.hex";
 }
 
 void MainWindow::on_timerTimeout()
@@ -424,7 +437,7 @@ void MainWindow::backupFlash()
 {
     serial->setPortName(settings->value("commPort").toString());
     ui->txtOutput->clear();
-    callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex",false);
+    callAvrdude(atmBackUpFilepath() ,false);
     enableButtons(false);
     ui->lblOutput->setText("Backing up flash. Please wait...");
 }
