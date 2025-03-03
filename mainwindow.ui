@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Easy Uploader 1.2.1</string>
+   <string/>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -32,7 +32,7 @@
       <number>7</number>
      </property>
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
      </property>
      <item>
       <widget class="QComboBox" name="cboCommPort"/>
@@ -47,13 +47,13 @@
      <item>
       <widget class="QLabel" name="lblOutput">
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="text">
         <string>1) Select Comm Port 2) Click Upload... 3) Select file</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -82,7 +82,7 @@
      <item>
       <widget class="QTextEdit" name="txtOutput">
        <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
+        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
        </property>
        <property name="readOnly">
         <bool>true</bool>
