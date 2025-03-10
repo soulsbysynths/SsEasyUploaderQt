@@ -1,32 +1,31 @@
-//Easy Uploader. AVRDUDE interface for use with Soulsby Atmegatron.
-//Copyright (C) 2016 Paul Soulsby
+// Easy Uploader. AVRDUDE interface for use with Soulsby Atmegatron.
+// Copyright (C) 2016 Paul Soulsby
 
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
 //(at your option) any later version.
 
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    settings(new QSettings("Sebsongs Modular", "Easy Uploader"))
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , settings(new QSettings("Sebsongs Modular", "Easy Uploader"))
 {
     ui->setupUi(this);
     ui->txtOutput->setVisible(false);
-    ui->btnLoadPatches->setVisible(false);
-    ui->btnSavePatches->setVisible(false);
+    ui->horizontalLayoutWidget->setVisible(false);
+    ui->verticalLayout->setAlignment(Qt::AlignTop);
     this->setFixedSize(this->size());
 
     timer = new QTimer(this);
@@ -38,21 +37,28 @@ MainWindow::MainWindow(QWidget *parent) :
     serial->setParity(QSerialPort::NoParity);
     serial->setStopBits(QSerialPort::OneStop);
     serial->setFlowControl(QSerialPort::NoFlowControl);
-    connect(serial,SIGNAL(readyRead()),this,SLOT(serialReceived()));
+    connect(serial, SIGNAL(readyRead()), this, SLOT(serialReceived()));
 
     avrprog = new QProcess(this);
     avrprog->setProcessChannelMode(QProcess::MergedChannels);
     avrprog->setReadChannel(QProcess::StandardOutput);
     connect(avrprog, SIGNAL(readyReadStandardOutput()), this, SLOT(on_avrOutput()));
-    connect(avrprog, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(on_avrFinished(int,QProcess::ExitStatus)));
-    connect(avrprog, &QProcess::errorOccurred, [=](QProcess::ProcessError error)
-    {
-        qDebug() << "error enum val = " << error << "\n" << avrprog->errorString() << "\n";
-    });
+    connect(avrprog,
+            SIGNAL(finished(int, QProcess::ExitStatus)),
+            this,
+            SLOT(on_avrFinished(int, QProcess::ExitStatus)));
+    connect(avrprog,
+            &QProcess::errorOccurred,
+            [=](QProcess::ProcessError error)
+            {
+                qDebug() << "error enum val = " << error << "\n" << avrprog->errorString() << "\n";
+            });
 
     populateCombo();
     int index = ui->cboCommPort->findText(settings->value("commPort").toString());
     ui->cboCommPort->setCurrentIndex(index);
+    index = ui->cboModule->findText(settings->value("device").toString());
+    ui->cboModule->setCurrentIndex(index);
     this->setWindowTitle("Easy Uploader " + QApplication::applicationVersion());
 }
 void MainWindow::populateCombo()
@@ -62,6 +68,12 @@ void MainWindow::populateCombo()
     {
         ui->cboCommPort->addItem(serialPortInfo.systemLocation());
     }
+
+    ui->cboModule->clear();
+    for (int i = 0; i < DEVICES; i++)
+    {
+        ui->cboModule->addItem(devices[i].name);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -70,33 +82,39 @@ MainWindow::~MainWindow()
     delete settings;
     delete avrprog;
 }
-bool MainWindow::fileExists(QString path) {
+bool MainWindow::fileExists(QString path)
+{
     QFileInfo checkFile(path);
     // check if file exists and if yes: Is it really a file and no directory?
-    if (checkFile.exists() && checkFile.isFile()) {
+    if (checkFile.exists() && checkFile.isFile())
+    {
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
 void MainWindow::on_btnUploadFlash_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this,"Upload", settings->value("filename").toString() ,"Hex files (*.hex)");
-    if(fileExists(filename)==true)
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    "Upload",
+                                                    settings->value("filename").toString(),
+                                                    "Hex files (*.hex)");
+    if (fileExists(filename) == true)
     {
         curTask = T_UPLOAD;
-        settings->setValue("filename",filename);
+        settings->setValue("filename", filename);
         ui->txtOutput->clear();
-        callAvrdude(filename,true);
+        callAvrdude(filename, true);
         enableButtons(false);
         ui->lblOutput->setText("Programming. Please wait...");
     }
-
 }
 void MainWindow::callAvrdude(QString hexPath, bool write)
 {
     QString fileMode;
-    if(write)
+    if (write)
     {
         fileMode = "w";
     }
@@ -104,14 +122,41 @@ void MainWindow::callAvrdude(QString hexPath, bool write)
     {
         fileMode = "r";
     }
+
     QString prog = qApp->applicationDirPath() + "//avrdude";
-    QStringList args = {"-c","arduino","-p","m328p","-C", qApp->applicationDirPath() + "/avrdude.conf","-P",settings->value("commPort").toString(),"-U","flash:" + fileMode + ":"+ hexPath + ":i"};
-    avrprog->start(prog,args);
-    ui->txtOutput->insertPlainText(prog);
-    for(int i=0;i<args.length();++i )
+    // QStringList args = {"-c","arduino","-p","m328p","-C",
+    // qApp->applicationDirPath() +
+    // "/avrdude.conf","-P",settings->value("commPort").toString(),"-U","flash:"
+    // + fileMode + ":"+ hexPath + ":i"};
+    int dev = ui->cboModule->findText(settings->value("device").toString());
+    for (int i = 0; i < devices[dev].avrDudeArgs.length(); ++i)
     {
-        ui->txtOutput->insertPlainText(" " + args.at(i));
+        if (devices[dev].avrDudeArgs[i] == "-C")
+        {
+            devices[dev].avrDudeArgs[i + 1] = qApp->applicationDirPath() + "/avrdude.conf";
+        }
+
+        if (devices[dev].avrDudeArgs[i] == "-P")
+        {
+            devices[dev].avrDudeArgs[i + 1] = settings->value("commPort").toString();
+        }
+
+        if (devices[dev].avrDudeArgs[i] == "-U")
+        {
+            if (devices[dev].avrDudeArgs[i + 1] == "")
+            {
+                devices[dev].avrDudeArgs[i + 1] = "flash:" + fileMode + ":" + hexPath + ":i";
+            }
+        }
     }
+
+    avrprog->start(prog, devices[dev].avrDudeArgs);
+    ui->txtOutput->insertPlainText(prog);
+    for (int i = 0; i < devices[dev].avrDudeArgs.length(); ++i)
+    {
+        ui->txtOutput->insertPlainText(" " + devices[dev].avrDudeArgs.at(i));
+    }
+
     ui->txtOutput->insertPlainText("\n");
 }
 void MainWindow::enableButtons(bool way)
@@ -130,7 +175,7 @@ void MainWindow::on_avrOutput()
 }
 void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
 {
-    if(status==QProcess::CrashExit)
+    if (status == QProcess::CrashExit)
     {
         ui->txtOutput->append("Crashed");
     }
@@ -138,10 +183,10 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
     {
         ui->txtOutput->append("Success:" + QString::number(data));
     }
-    switch(curTask)
+    switch (curTask)
     {
     case T_UPLOAD:
-        if(ui->txtOutput->toPlainText().contains("flash verified")==true)
+        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
         {
             ui->lblOutput->setText("Completed!");
         }
@@ -153,12 +198,12 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         curTask = T_IDLE;
         break;
     case T_SP_DL_FW:
-        if(ui->txtOutput->toPlainText().contains("output file")==true)
+        if (ui->txtOutput->toPlainText().contains("output file") == true)
         {
             ui->lblOutput->setText("Uploading EEPROM reader. Please wait...");
             curTask = T_SP_UL_EEP;
             ui->txtOutput->clear();
-            callAvrdude(qApp->applicationDirPath() + "/EEPROM_Reader.hex",true);
+            callAvrdude(qApp->applicationDirPath() + "/EEPROM_Reader.hex", true);
         }
         else
         {
@@ -167,11 +212,11 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         }
         break;
     case T_SP_UL_EEP:
-        if(ui->txtOutput->toPlainText().contains("flash verified")==true)
+        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
         {
             ui->lblOutput->setText("Transferring EEPROM. Please wait...");
             curTask = T_SP_SAVE_EEP;
-            if(serial->open(QIODevice::ReadWrite))
+            if (serial->open(QIODevice::ReadWrite))
             {
                 serialDataRx.clear();
                 timer->start(500);
@@ -192,7 +237,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         break;
     case T_SP_UL_FW:
     case T_LP_UL_FW:
-        if(ui->txtOutput->toPlainText().contains("flash verified")==true)
+        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
         {
             ui->lblOutput->setText("Completed!");
         }
@@ -204,7 +249,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         curTask = T_IDLE;
         break;
     case T_LP_DL_FW:
-        if(ui->txtOutput->toPlainText().contains("output file")==true)
+        if (ui->txtOutput->toPlainText().contains("output file") == true)
         {
             ui->lblOutput->setText("Uploading EEPROM writer. Please wait...");
             curTask = T_LP_UL_EEP;
@@ -218,11 +263,11 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         }
         break;
     case T_LP_UL_EEP:
-        if(ui->txtOutput->toPlainText().contains("flash verified")==true)
+        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
         {
             ui->lblOutput->setText("Transferring EEPROM. Please wait...");
             curTask = T_LP_LOAD_EEP;
-            if(serial->open(QIODevice::ReadWrite))
+            if (serial->open(QIODevice::ReadWrite))
             {
                 serialDataRx.clear();
                 ui->txtOutput->clear();
@@ -250,15 +295,15 @@ void MainWindow::serialReceived()
     QString line;
     timer->stop();
     serialDataRx.append(serial->readAll());
-    if(curTask==T_SP_SAVE_EEP)
+    if (curTask == T_SP_SAVE_EEP)
     {
-        if(serialDataRx.size()>=21)
+        if (serialDataRx.size() >= 21)
         {
             QString out = ":";
             out.append(QString(serialDataRx.toHex()));
             out = out.toUpper();
             ui->txtOutput->append(out);
-            if(curEepromBlock<63)
+            if (curEepromBlock < 63)
             {
                 curEepromBlock++;
                 serialDataRx.clear();
@@ -280,8 +325,9 @@ void MainWindow::serialReceived()
                     ui->txtOutput->clear();
                     ui->lblOutput->setText("Restoring flash. Please wait...");
                     curTask = T_SP_UL_FW;
-                    //callAvrdude(qApp->applicationDirPath() + "/atm_backup.hex",true);
-                    callAvrdude(atmBackUpFilepath(),true);
+                    // callAvrdude(qApp->applicationDirPath() +
+                    // "/atm_backup.hex",true);
+                    callAvrdude(atmBackUpFilepath(), true);
                 }
                 else
                 {
@@ -290,25 +336,24 @@ void MainWindow::serialReceived()
                     curTask = T_IDLE;
                     enableButtons(true);
                 }
-
             }
         }
     }
-    else if(curTask==T_LP_LOAD_EEP)
+    else if (curTask == T_LP_LOAD_EEP)
     {
         curEepromBlock = serialDataRx[0];
         serialDataRx.clear();
-        if(curEepromBlock==0xFF)
+        if (curEepromBlock == 0xFF)
         {
             ui->txtOutput->append("First byte error");
             ui->lblOutput->setText("WARNING: write error");
         }
-        else if (curEepromBlock==0xFE)
+        else if (curEepromBlock == 0xFE)
         {
             ui->txtOutput->append("Checksum error");
             ui->lblOutput->setText("WARNING: write error");
         }
-        else if(curEepromBlock==BLOCKS)
+        else if (curEepromBlock == BLOCKS)
         {
             serial->close();
             ui->txtOutput->clear();
@@ -322,13 +367,13 @@ void MainWindow::serialReceived()
             if (file.open(QIODevice::ReadWrite))
             {
                 QTextStream stream(&file);
-                for(unsigned char i=0;i<=curEepromBlock;++i)
+                for (unsigned char i = 0; i <= curEepromBlock; ++i)
                 {
                     line = stream.readLine(0);
                 }
                 file.flush();
                 file.close();
-                if(line.size()==0)
+                if (line.size() == 0)
                 {
                     ui->lblOutput->setText("Failed. Could not read file.");
                     serial->close();
@@ -339,15 +384,15 @@ void MainWindow::serialReceived()
                 {
                     ui->txtOutput->append(line);
                     QByteArray outdata;
-                    for(unsigned char i=1;i<43;i+=2)
+                    for (unsigned char i = 1; i < 43; i += 2)
                     {
-                        QString pair = line.mid(i,2);
-                        //ui->txtOutput->append(pair);
+                        QString pair = line.mid(i, 2);
+                        // ui->txtOutput->append(pair);
                         bool ok;
-                        char val = pair.toInt(&ok,16);
-                        //ui->txtOutput->append(QString::number(val));
+                        char val = pair.toInt(&ok, 16);
+                        // ui->txtOutput->append(QString::number(val));
                         outdata.append(val);
-                        if(ok==false)
+                        if (ok == false)
                         {
                             ui->txtOutput->append("write error");
                         }
@@ -363,9 +408,7 @@ void MainWindow::serialReceived()
                 enableButtons(true);
             }
         }
-
     }
-
 }
 
 QString MainWindow::atmBackUpFilepath()
@@ -383,7 +426,7 @@ QString MainWindow::atmBackUpFilepath()
 void MainWindow::on_timerTimeout()
 {
     QByteArray data;
-    if(curTask==T_SP_SAVE_EEP)
+    if (curTask == T_SP_SAVE_EEP)
     {
         curEepromBlock = 0;
         data.append(curEepromBlock);
@@ -394,7 +437,7 @@ void MainWindow::on_timerTimeout()
 
 void MainWindow::on_chkShowConsole_stateChanged(int arg1)
 {
-    if(arg1==Qt::Checked)
+    if (arg1 == Qt::Checked)
     {
         ui->txtOutput->setVisible(true);
     }
@@ -406,30 +449,40 @@ void MainWindow::on_chkShowConsole_stateChanged(int arg1)
 
 void MainWindow::on_cboCommPort_activated(int index)
 {
-    settings->setValue("commPort",ui->cboCommPort->itemText(index));
+    settings->setValue("commPort", ui->cboCommPort->itemText(index));
 }
-//test commit
+// test commit
 
 void MainWindow::on_btnSavePatches_clicked()
 {
-    QString filename = QFileDialog::getSaveFileName(this,"Save Patches",settings->value("spFilename").toString(),"EEPROM files (*.eep)");
-    if(filename.isNull()==false && filename.isEmpty()==false)
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    "Save Patches",
+                                                    settings->value("spFilename").toString(),
+                                                    "EEPROM files (*.eep)");
+    if (filename.isNull() == false && filename.isEmpty() == false)
     {
-        settings->setValue("spFilename",filename);
+        settings->setValue("spFilename", filename);
         curTask = T_SP_DL_FW;
         backupFlash();
     }
 }
 
-
 void MainWindow::on_btnLoadPatches_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this,"Load Patches", settings->value("lpFilename").toString() ,"EEPROM files (*.eep)");
-    if(fileExists(filename)==true)
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    "Load Patches",
+                                                    settings->value("lpFilename").toString(),
+                                                    "EEPROM files (*.eep)");
+    if (fileExists(filename) == true)
     {
-        if(QMessageBox::question(this, "Load Patches"  ,  "This will erase all existing patches in your device. OK to continue?", QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+        if (QMessageBox::question(this,
+                                  "Load Patches",
+                                  "This will erase all existing patches in "
+                                  "your device. OK to continue?",
+                                  QMessageBox::Yes | QMessageBox::No)
+            == QMessageBox::Yes)
         {
-            settings->setValue("lpFilename",filename);
+            settings->setValue("lpFilename", filename);
             curTask = T_LP_DL_FW;
             backupFlash();
         }
@@ -439,7 +492,12 @@ void MainWindow::backupFlash()
 {
     serial->setPortName(settings->value("commPort").toString());
     ui->txtOutput->clear();
-    callAvrdude(atmBackUpFilepath() ,false);
+    callAvrdude(atmBackUpFilepath(), false);
     enableButtons(false);
     ui->lblOutput->setText("Backing up flash. Please wait...");
+}
+
+void MainWindow::on_cboModule_activated(int index)
+{
+    settings->setValue("device", ui->cboModule->itemText(index));
 }
