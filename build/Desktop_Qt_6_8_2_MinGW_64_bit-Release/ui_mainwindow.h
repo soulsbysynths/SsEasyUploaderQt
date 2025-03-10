@@ -104,11 +104,13 @@ public:
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
         btnSavePatches = new QPushButton(horizontalLayoutWidget);
         btnSavePatches->setObjectName("btnSavePatches");
+        btnSavePatches->setEnabled(false);
 
         horizontalLayout->addWidget(btnSavePatches);
 
         btnLoadPatches = new QPushButton(horizontalLayoutWidget);
         btnLoadPatches->setObjectName("btnLoadPatches");
+        btnLoadPatches->setEnabled(false);
 
         horizontalLayout->addWidget(btnLoadPatches);
 

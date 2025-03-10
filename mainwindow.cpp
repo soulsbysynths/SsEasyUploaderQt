@@ -21,10 +21,12 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    settings(new QSettings("Soulsby Synthesizers", "Easy Uploader"))
+    settings(new QSettings("Sebsongs Modular", "Easy Uploader"))
 {
     ui->setupUi(this);
     ui->txtOutput->setVisible(false);
+    ui->btnLoadPatches->setVisible(false);
+    ui->btnSavePatches->setVisible(false);
     this->setFixedSize(this->size());
 
     timer = new QTimer(this);
