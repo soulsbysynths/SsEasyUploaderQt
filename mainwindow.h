@@ -38,6 +38,7 @@ class MainWindow;
 typedef struct easyUploaderDevice
 {
     QString name;
+    QString preUploadMsg;
     QStringList avrDudeArgs;
 } easyUploaderDevice;
 
@@ -78,8 +79,9 @@ private:
     };
     static const int DEVICES = 4;
     easyUploaderDevice devices[DEVICES] = {
-        {"Atmegatron", {"-c", "arduino", "-p", "m328p", "-C", "", "-P", "", "-U", ""}},
+        {"Atmegatron", "This is a test pre-upload message.", {"-c", "arduino", "-p", "m328p", "-C", "", "-P", "", "-U", ""}},
         {"Bread & Butter",
+         "",
          {"-C",
           "",
           "-v",
@@ -102,9 +104,8 @@ private:
           "-U",
           "fuse8:w:0x00:m",
           "{upload.extra_files}"}},
-        {"Euclidean",
-         {"-C", "", "-v", "-p", "atmega328p", "-c", "Arduino", "-P", "", "-b", "57600", "-D", "-U", ""}},
-        {"Odds", {"-C", "", "-v", "-p", "atmega328p", "-c", "usbtiny", "-U", ""}},
+        {"Euclidean", "", {"-C", "", "-v", "-p", "atmega328p", "-c", "Arduino", "-P", "", "-b", "57600", "-D", "-U", ""}},
+        {"Odds", "Please press the reset switch on the Adafruit Pro Trinket 5V before uploading the firmware. Make sure that the red LED is fading in and out when you click the OK button.", {"-C", "", "-v", "-p", "atmega328p", "-c", "usbtiny", "-U", ""}},
     };
     Ui::MainWindow *ui;
     QSettings *settings;
@@ -114,6 +115,7 @@ private:
     void populateCombo();
     void enableButtons(bool way);
     bool fileExists(QString path);
+    void showConsole(bool way);
     Task curTask = T_IDLE;
     unsigned char curEepromBlock = 0;
     QByteArray serialDataRx;

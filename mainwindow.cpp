@@ -23,10 +23,10 @@ MainWindow::MainWindow(QWidget *parent)
     , settings(new QSettings("Sebsongs Modular", "Easy Uploader"))
 {
     ui->setupUi(this);
-    ui->txtOutput->setVisible(false);
+    ui->txtOutput->setVisible(true);
     ui->horizontalLayoutWidget->setVisible(false);
     ui->verticalLayout->setAlignment(Qt::AlignTop);
-    this->setFixedSize(this->size());
+    showConsole(false);
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(on_timerTimeout()));
@@ -129,6 +129,15 @@ void MainWindow::callAvrdude(QString hexPath, bool write)
     // "/avrdude.conf","-P",settings->value("commPort").toString(),"-U","flash:"
     // + fileMode + ":"+ hexPath + ":i"};
     int dev = ui->cboModule->findText(settings->value("device").toString());
+
+    if (devices[dev].preUploadMsg != "")
+    {
+        QMessageBox msgBox;
+        msgBox.setText(devices[dev].preUploadMsg);
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.exec();
+    }
+
     for (int i = 0; i < devices[dev].avrDudeArgs.length(); ++i)
     {
         if (devices[dev].avrDudeArgs[i] == "-C")
@@ -437,13 +446,20 @@ void MainWindow::on_timerTimeout()
 
 void MainWindow::on_chkShowConsole_stateChanged(int arg1)
 {
-    if (arg1 == Qt::Checked)
+    showConsole(arg1 == Qt::Checked);
+}
+
+void MainWindow::showConsole(bool way)
+{
+    if (way)
     {
-        ui->txtOutput->setVisible(true);
+        this->setFixedSize(this->geometry().width(), 383);
+        //ui->txtOutput->setVisible(true);
     }
     else
     {
-        ui->txtOutput->setVisible(false);
+        this->setFixedSize(this->geometry().width(), 240);
+        //ui->txtOutput->setVisible(false);
     }
 }
 

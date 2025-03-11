@@ -50,7 +50,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(291, 266);
+        MainWindow->resize(294, 385);
         QIcon icon;
         icon.addFile(QString::fromUtf8("my_app.icns"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         MainWindow->setWindowIcon(icon);
@@ -58,12 +58,12 @@ public:
         centralWidget->setObjectName("centralWidget");
         layoutWidget = new QWidget(centralWidget);
         layoutWidget->setObjectName("layoutWidget");
-        layoutWidget->setGeometry(QRect(10, 10, 271, 247));
+        layoutWidget->setGeometry(QRect(10, 10, 271, 351));
         verticalLayout = new QVBoxLayout(layoutWidget);
         verticalLayout->setSpacing(7);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName("verticalLayout");
-        verticalLayout->setSizeConstraint(QLayout::SizeConstraint::SetDefaultConstraint);
+        verticalLayout->setSizeConstraint(QLayout::SizeConstraint::SetMinimumSize);
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         lblInstruction1 = new QLabel(layoutWidget);
         lblInstruction1->setObjectName("lblInstruction1");
@@ -135,7 +135,7 @@ public:
 
         horizontalLayoutWidget = new QWidget(centralWidget);
         horizontalLayoutWidget->setObjectName("horizontalLayoutWidget");
-        horizontalLayoutWidget->setGeometry(QRect(10, 250, 272, 32));
+        horizontalLayoutWidget->setGeometry(QRect(10, 380, 272, 32));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);

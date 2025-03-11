@@ -50,7 +50,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(294, 383);
+        MainWindow->resize(294, 240);
         QIcon icon;
         icon.addFile(QString::fromUtf8("my_app.icns"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         MainWindow->setWindowIcon(icon);
@@ -58,7 +58,7 @@ public:
         centralWidget->setObjectName("centralWidget");
         layoutWidget = new QWidget(centralWidget);
         layoutWidget->setObjectName("layoutWidget");
-        layoutWidget->setGeometry(QRect(10, 10, 271, 344));
+        layoutWidget->setGeometry(QRect(10, 10, 271, 351));
         verticalLayout = new QVBoxLayout(layoutWidget);
         verticalLayout->setSpacing(7);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
