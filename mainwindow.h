@@ -26,6 +26,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QThread>
 #include <QTimer>
 #include <QtSerialPort/QSerialPortInfo>
 
@@ -39,6 +40,10 @@ typedef struct easyUploaderDevice
 {
     QString name;
     QString preUploadMsg;
+    QString preUploadProcess1;
+    QStringList preUploadArgs1;
+    QString preUploadProcess2;
+    QStringList preUploadArgs2;
     QStringList avrDudeArgs;
 } easyUploaderDevice;
 
@@ -79,34 +84,196 @@ private:
     };
     static const int DEVICES = 4;
     easyUploaderDevice devices[DEVICES] = {
-        {"Atmegatron", "This is a test pre-upload message.", {"-c", "arduino", "-p", "m328p", "-C", "", "-P", "", "-U", ""}},
-        {"Bread & Butter",
-         "",
-         {"-C",
-          "",
-          "-v",
-          "-p",
-          "atmega4809",
-          "-c",
-          "jtag2updi",
-          "-P",
-          "",
-          "-b",
-          "115200",
-          "-e",
-          "-D",
-          "-U",
-          "",
-          "-U",
-          "fuse2:w:0x01:m",
-          "-U",
-          "fuse5:w:0xC9:m",
-          "-U",
-          "fuse8:w:0x00:m",
-          "{upload.extra_files}"}},
-        {"Euclidean", "", {"-C", "", "-v", "-p", "atmega328p", "-c", "Arduino", "-P", "", "-b", "57600", "-D", "-U", ""}},
-        {"Odds", "Please press the reset switch on the Adafruit Pro Trinket 5V before uploading the firmware. Make sure that the red LED is fading in and out when you click the OK button.", {"-C", "", "-v", "-p", "atmega328p", "-c", "usbtiny", "-U", ""}},
+        {
+            "Bread & Butter",
+            "",
+#ifdef Q_OS_WINDOWS
+            "mode.com",
+            {
+                "COM:",
+                "baud=1200",
+                "dtr=on"
+            },
+            "mode.com",
+            {
+                "COM:",
+                "dtr=off"
+            },
+#else
+            "stty",
+            {
+                "-f",
+                "COM",
+                "1200"
+            },
+            "",
+            {},
+#endif
+            {
+                "-C",
+                "",
+                "-v",
+                "-V",
+                "-p",
+                "atmega4809",
+                "-c",
+                "jtag2updi",
+                "-P",
+                "",
+                "-b",
+                "115200",
+                "-e",
+                "-D",
+                "-U",
+                "",
+                "-U",
+                "fuse2:w:0x01:m",
+                "-U",
+                "fuse5:w:0xC9:m",
+                "-U",
+                "fuse8:w:0x00:m",
+                "{upload.extra_files}"
+            }
+        },
+
+        {
+            "Euclidean (Rev 1.1 & 1.2)",
+            "",
+            "",
+            {},
+            "",
+            {},
+            {
+                "-C",
+                "",
+                "-v",
+                "-V",
+                "-p",
+                "atmega328p",
+                "-c",
+                "arduino",
+                "-P",
+                "",
+                "-b",
+                "57600",
+                "-D",
+                "-U",
+                ""
+            }
+        },
+
+        {
+            "Euclidean (Rev 1.3+)",
+            "",
+#ifdef Q_OS_WINDOWS
+            "mode.com",
+            {
+                "COM:",
+                "baud=1200",
+                "dtr=on"
+            },
+            "mode.com",
+            {
+                "COM:",
+                "dtr=off"
+            },
+#else
+            "stty",
+            {
+                "-f",
+                "COM",
+                "1200"
+            },
+            "",
+            {},
+#endif
+            {
+                "-C",
+                "",
+                "-v",
+                "-V",
+                "-p",
+                "atmega4809",
+                "-c",
+                "jtag2updi",
+                "-P",
+                "",
+                "-b",
+                "115200",
+                "-e",
+                "-D",
+                "-U",
+                "",
+                "-U",
+                "fuse2:w:0x01:m",
+                "-U",
+                "fuse5:w:0xC9:m",
+                "-U",
+                "fuse8:w:0x00:m",
+                "{upload.extra_files}"
+            }
+        },
+
+        {
+            "Odds",
+            "Please press the reset switch on the Adafruit Pro Trinket 5V before uploading the firmware. Make sure that the red LED is fading in and out when you click the OK button.",
+            "",
+            {},
+            "",
+            {},
+            {
+                "-C",
+                "",
+                "-v",
+                "-p",
+                "atmega328p",
+                "-c",
+                "usbtiny",
+                "-U",
+                ""
+            }
+        },
+        //         {
+        //             "Atmegatron",
+        //             "This is a test pre-upload message.",
+        // #ifdef Q_OS_WINDOWS
+        //             "mode.com",
+        //             {
+        //                 "COM:",
+        //                 "baud=1200",
+        //                 "dtr=on"
+        //             },
+        //             "mode.com",
+        //             {
+        //                 "COM:",
+        //                 "dtr=off"
+        //             },
+        // #else
+        //             "stty",
+        //             {
+        //                 "-f",
+        //                 "COM",
+        //                 "1200"
+        //             },
+        //             "",
+        //             {},
+        // #endif
+        //             {
+        //                 "-c",
+        //                 "arduino",
+        //                 "-p",
+        //                 "m328p",
+        //                 "-C",
+        //                 "",
+        //                 "-P",
+        //                 "",
+        //                 "-U",
+        //                 ""
+        //             }
+        //         },
     };
+
+
     Ui::MainWindow *ui;
     QSettings *settings;
     QProcess *avrprog;
@@ -123,6 +290,9 @@ private:
     const unsigned char BLOCKS = 64;
     void callAvrdude(QString hexPath, bool write);
     QString atmBackUpFilepath();
+    bool isConsoleContainsCompleteWord(bool write);
+    void printQProcessToConsole(QString prog, QStringList args);
+    void runPreUploadProcess(QString process, QStringList args);
 };
 
 #endif // MAINWINDOW_H

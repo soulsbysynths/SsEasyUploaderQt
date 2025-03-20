@@ -66,7 +66,8 @@ void MainWindow::populateCombo()
     ui->cboCommPort->clear();
     foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
     {
-        ui->cboCommPort->addItem(serialPortInfo.systemLocation());
+        //ui->cboCommPort->addItem(serialPortInfo.systemLocation());
+        ui->cboCommPort->addItem(serialPortInfo.portName());
     }
 
     ui->cboModule->clear();
@@ -123,7 +124,6 @@ void MainWindow::callAvrdude(QString hexPath, bool write)
         fileMode = "r";
     }
 
-    QString prog = qApp->applicationDirPath() + "//avrdude";
     // QStringList args = {"-c","arduino","-p","m328p","-C",
     // qApp->applicationDirPath() +
     // "/avrdude.conf","-P",settings->value("commPort").toString(),"-U","flash:"
@@ -137,6 +137,9 @@ void MainWindow::callAvrdude(QString hexPath, bool write)
         msgBox.setIcon(QMessageBox::Information);
         msgBox.exec();
     }
+
+    runPreUploadProcess(devices[dev].preUploadProcess1, devices[dev].preUploadArgs1);
+    runPreUploadProcess(devices[dev].preUploadProcess2, devices[dev].preUploadArgs2);
 
     for (int i = 0; i < devices[dev].avrDudeArgs.length(); ++i)
     {
@@ -159,15 +162,50 @@ void MainWindow::callAvrdude(QString hexPath, bool write)
         }
     }
 
+    QString prog = qApp->applicationDirPath() + "//avrdude";
     avrprog->start(prog, devices[dev].avrDudeArgs);
-    ui->txtOutput->insertPlainText(prog);
-    for (int i = 0; i < devices[dev].avrDudeArgs.length(); ++i)
+    printQProcessToConsole(prog, devices[dev].avrDudeArgs);
+}
+
+void MainWindow::runPreUploadProcess(QString process, QStringList args)
+{
+    if (process == "")
     {
-        ui->txtOutput->insertPlainText(" " + devices[dev].avrDudeArgs.at(i));
+        return;
+    }
+
+    for (int i = 0; i < args.length(); ++i)
+    {
+        args[i].replace("COM", settings->value("commPort").toString());
+    }
+    int res = QProcess::execute(process, args);
+    switch (res)
+    {
+    case -2:
+        ui->txtOutput->insertPlainText("Preupload process could not be started.\n");
+        break;
+    case -1:
+        ui->txtOutput->insertPlainText("Preupload process crashed.\n");
+        break;
+    default:
+        printQProcessToConsole(process, args);
+        break;
+    }
+
+    QThread::msleep(250);
+}
+
+void MainWindow::printQProcessToConsole(QString prog, QStringList args)
+{
+    ui->txtOutput->insertPlainText(prog);
+    for (int i = 0; i < args.length(); ++i)
+    {
+        ui->txtOutput->insertPlainText(" " + args.at(i));
     }
 
     ui->txtOutput->insertPlainText("\n");
 }
+
 void MainWindow::enableButtons(bool way)
 {
     ui->btnUploadFlash->setEnabled(way);
@@ -195,7 +233,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
     switch (curTask)
     {
     case T_UPLOAD:
-        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
+        if (isConsoleContainsCompleteWord(true) == true)
         {
             ui->lblOutput->setText("Completed!");
         }
@@ -207,7 +245,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         curTask = T_IDLE;
         break;
     case T_SP_DL_FW:
-        if (ui->txtOutput->toPlainText().contains("output file") == true)
+        if (isConsoleContainsCompleteWord(false) == true)
         {
             ui->lblOutput->setText("Uploading EEPROM reader. Please wait...");
             curTask = T_SP_UL_EEP;
@@ -221,7 +259,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         }
         break;
     case T_SP_UL_EEP:
-        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
+        if (isConsoleContainsCompleteWord(true) == true)
         {
             ui->lblOutput->setText("Transferring EEPROM. Please wait...");
             curTask = T_SP_SAVE_EEP;
@@ -246,7 +284,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         break;
     case T_SP_UL_FW:
     case T_LP_UL_FW:
-        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
+        if (isConsoleContainsCompleteWord(true) == true)
         {
             ui->lblOutput->setText("Completed!");
         }
@@ -258,7 +296,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         curTask = T_IDLE;
         break;
     case T_LP_DL_FW:
-        if (ui->txtOutput->toPlainText().contains("output file") == true)
+        if (isConsoleContainsCompleteWord(false)  == true)
         {
             ui->lblOutput->setText("Uploading EEPROM writer. Please wait...");
             curTask = T_LP_UL_EEP;
@@ -272,7 +310,7 @@ void MainWindow::on_avrFinished(int data, QProcess::ExitStatus status)
         }
         break;
     case T_LP_UL_EEP:
-        if (ui->txtOutput->toPlainText().contains("flash verified") == true)
+        if (isConsoleContainsCompleteWord(true) == true)
         {
             ui->lblOutput->setText("Transferring EEPROM. Please wait...");
             curTask = T_LP_LOAD_EEP;
@@ -516,4 +554,27 @@ void MainWindow::backupFlash()
 void MainWindow::on_cboModule_activated(int index)
 {
     settings->setValue("device", ui->cboModule->itemText(index));
+}
+
+bool MainWindow::isConsoleContainsCompleteWord(bool write)
+{
+    QString completeWord = "flash verified";
+    if (write)
+    {
+        int dev = ui->cboModule->findText(settings->value("device").toString());
+        for (int i = 0; i < devices[dev].avrDudeArgs.length(); ++i)
+        {
+            if (devices[dev].avrDudeArgs[i] == "-V")
+            {
+                completeWord = "flash written";
+                break;
+            }
+        }
+    }
+    else
+    {
+        completeWord = "output file";
+    }
+
+    return ui->txtOutput->toPlainText().contains(completeWord);
 }
