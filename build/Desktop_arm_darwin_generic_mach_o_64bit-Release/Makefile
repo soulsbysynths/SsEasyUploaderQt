@@ -36,8 +36,8 @@ DEL_DIR       = rmdir
 MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
-DISTNAME      = EasyUploader1.3.0
-DISTDIR = /Users/richard2/Documents/GitHub/SsEasyUploaderQt/build/Desktop_arm_darwin_generic_mach_o_64bit-Release/.tmp/EasyUploader1.3.0
+DISTNAME      = EasyUploader1.4.0
+DISTDIR = /Users/richard2/Documents/GitHub/SsEasyUploaderQt/build/Desktop_arm_darwin_generic_mach_o_64bit-Release/.tmp/EasyUploader1.4.0
 LINK          = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
 LFLAGS        = -stdlib=libc++ -headerpad_max_install_names $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -mmacosx-version-min=12 -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/Users/richard2/Qt/6.8.2/macos/lib
 LIBS          = $(SUBLIBS) -F/Users/richard2/Qt/6.8.2/macos/lib -framework QtWidgets -framework QtGui -framework AppKit -framework ImageIO -framework Metal -framework QtSerialPort -framework QtCore -framework IOKit -framework DiskArbitration -framework UniformTypeIdentifiers -framework AGL -framework OpenGL   
@@ -280,6 +280,7 @@ DIST          = ../../Copying.txt \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/qt_config.prf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/macx-clang/qmake.conf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/spec_post.prf \
+		../../.qmake.stash \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/exclusive_builds.prf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/mac/sdk.prf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/toolchain.prf \
@@ -319,7 +320,7 @@ TARGET        = EasyUploader.app/Contents/MacOS/EasyUploader
 EXPORT_QMAKE_MAC_SDK = macosx
 EXPORT_QMAKE_MAC_SDK_VERSION = 15.2
 EXPORT_QMAKE_XCODE_DEVELOPER_PATH = /Applications/Xcode.app/Contents/Developer
-EXPORT__QMAKE_STASH_ = 
+EXPORT__QMAKE_STASH_ = /Users/richard2/Documents/GitHub/SsEasyUploaderQt/build/Desktop_arm_darwin_generic_mach_o_64bit-Release/.qmake.stash
 EXPORT_VALID_ARCHS = x86_64 arm64
 EXPORT_DEFAULT_ARCHS = arm64
 EXPORT_ARCHS = $(filter $(EXPORT_VALID_ARCHS), $(if $(ARCHS), $(ARCHS), $(if $(EXPORT_DEFAULT_ARCHS), $(EXPORT_DEFAULT_ARCHS), $(EXPORT_VALID_ARCHS))))
@@ -554,6 +555,7 @@ Makefile: ../../SsEasyUploaderQt.pro /Users/richard2/Qt/6.8.2/macos/mkspecs/macx
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/qt_config.prf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/macx-clang/qmake.conf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/exclusive_builds.prf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/mac/sdk.prf \
 		/Users/richard2/Qt/6.8.2/macos/mkspecs/features/toolchain.prf \
@@ -807,6 +809,7 @@ Makefile: ../../SsEasyUploaderQt.pro /Users/richard2/Qt/6.8.2/macos/mkspecs/macx
 /Users/richard2/Qt/6.8.2/macos/mkspecs/features/qt_config.prf:
 /Users/richard2/Qt/6.8.2/macos/mkspecs/macx-clang/qmake.conf:
 /Users/richard2/Qt/6.8.2/macos/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /Users/richard2/Qt/6.8.2/macos/mkspecs/features/exclusive_builds.prf:
 /Users/richard2/Qt/6.8.2/macos/mkspecs/features/mac/sdk.prf:
 /Users/richard2/Qt/6.8.2/macos/mkspecs/features/toolchain.prf:
@@ -853,7 +856,7 @@ EasyUploader.app/Contents/PkgInfo:
 EasyUploader.app/Contents/Info.plist: 
 	@test -d EasyUploader.app/Contents || mkdir -p EasyUploader.app/Contents
 	@$(DEL_FILE) EasyUploader.app/Contents/Info.plist
-	@plutil -convert xml1 -o - /Users/richard2/Qt/6.8.2/macos/mkspecs/macx-clang/Info.plist.app | sed -e "s,@SHORT_VERSION@,1.3,g" -e "s,\$${QMAKE_SHORT_VERSION},1.3,g" -e "s,@FULL_VERSION@,1.3.0,g" -e "s,\$${QMAKE_FULL_VERSION},1.3.0,g" -e "s,@TYPEINFO@,????,g" -e "s,\$${QMAKE_PKGINFO_TYPEINFO},????,g" -e "s,@BUNDLEIDENTIFIER@,com.yourcompany.EasyUploader,g" -e "s,\$${PRODUCT_BUNDLE_IDENTIFIER},com.yourcompany.EasyUploader,g" -e "s,\$${MACOSX_DEPLOYMENT_TARGET},12,g" -e "s,\$${IPHONEOS_DEPLOYMENT_TARGET},,g" -e "s,\$${TVOS_DEPLOYMENT_TARGET},,g" -e "s,\$${WATCHOS_DEPLOYMENT_TARGET},,g" -e "s,\$${IOS_LAUNCH_SCREEN},LaunchScreen,g" -e "s,@ICON@,icon.icns,g" -e "s,\$${ASSETCATALOG_COMPILER_APPICON_NAME},icon.icns,g" -e "s,@EXECUTABLE@,EasyUploader,g" -e "s,@LIBRARY@,EasyUploader,g" -e "s,\$${EXECUTABLE_NAME},EasyUploader,g" -e "s,@TYPEINFO@,????,g" -e "s,\$${QMAKE_PKGINFO_TYPEINFO},????,g" >EasyUploader.app/Contents/Info.plist
+	@plutil -convert xml1 -o - /Users/richard2/Qt/6.8.2/macos/mkspecs/macx-clang/Info.plist.app | sed -e "s,@SHORT_VERSION@,1.4,g" -e "s,\$${QMAKE_SHORT_VERSION},1.4,g" -e "s,@FULL_VERSION@,1.4.0,g" -e "s,\$${QMAKE_FULL_VERSION},1.4.0,g" -e "s,@TYPEINFO@,????,g" -e "s,\$${QMAKE_PKGINFO_TYPEINFO},????,g" -e "s,@BUNDLEIDENTIFIER@,com.yourcompany.EasyUploader,g" -e "s,\$${PRODUCT_BUNDLE_IDENTIFIER},com.yourcompany.EasyUploader,g" -e "s,\$${MACOSX_DEPLOYMENT_TARGET},12,g" -e "s,\$${IPHONEOS_DEPLOYMENT_TARGET},,g" -e "s,\$${TVOS_DEPLOYMENT_TARGET},,g" -e "s,\$${WATCHOS_DEPLOYMENT_TARGET},,g" -e "s,\$${IOS_LAUNCH_SCREEN},LaunchScreen,g" -e "s,@ICON@,icon.icns,g" -e "s,\$${ASSETCATALOG_COMPILER_APPICON_NAME},icon.icns,g" -e "s,@EXECUTABLE@,EasyUploader,g" -e "s,@LIBRARY@,EasyUploader,g" -e "s,\$${EXECUTABLE_NAME},EasyUploader,g" -e "s,@TYPEINFO@,????,g" -e "s,\$${QMAKE_PKGINFO_TYPEINFO},????,g" >EasyUploader.app/Contents/Info.plist
 EasyUploader.app/Contents/Resources/icon.icns: ../../icon.icns
 	@test -d EasyUploader.app/Contents/Resources/ || mkdir -p EasyUploader.app/Contents/Resources/
 	@$(DEL_FILE) EasyUploader.app/Contents/Resources/icon.icns
@@ -882,6 +885,7 @@ clean: compiler_clean
 
 distclean: clean 
 	-$(DEL_FILE) -r EasyUploader.app
+	-$(DEL_FILE) .qmake.stash
 	-$(DEL_FILE) Makefile
 
 
@@ -904,26 +908,28 @@ compiler_moc_header_make_all: moc_mainwindow.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_mainwindow.cpp
 moc_mainwindow.cpp: ../../mainwindow.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMainWindow \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmainwindow.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QSettings \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qsettings.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QApplication \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qapplication.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QFileDialog \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qfiledialog.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMainWindow \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmainwindow.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMessageBox \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmessagebox.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QProcess \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qprocess.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers/QSerialPort \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers/qserialport.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTextStream \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtextstream.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTimer \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtimer.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QFileDialog \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qfiledialog.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QSettings \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qsettings.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QStandardPaths \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qstandardpaths.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMessageBox \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmessagebox.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTextStream \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtextstream.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QThread \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qthread.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTimer \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtimer.h \
 		/Users/richard2/Qt/6.8.2/macos/libexec/moc
 	/Users/richard2/Qt/6.8.2/macos/libexec/moc $(DEFINES) -D__APPLE__ -D__GNUC__=4 -D__APPLE_CC__ -D__cplusplus=199711L -D__APPLE_CC__=6000 -D__clang__ -D__clang_major__=16 -D__clang_minor__=0 -D__clang_patchlevel__=0 -D__GNUC__=4 -D__GNUC_MINOR__=2 -D__GNUC_PATCHLEVEL__=1 -I/Users/richard2/Qt/6.8.2/macos/mkspecs/macx-clang -I/Users/richard2/Documents/GitHub/SsEasyUploaderQt -I/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers -I/Users/richard2/Qt/6.8.2/macos/lib/QtGui.framework/Headers -I/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers -I/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -F/Users/richard2/Qt/6.8.2/macos/lib ../../mainwindow.h -o moc_mainwindow.cpp
 
@@ -951,49 +957,53 @@ compiler_clean: compiler_moc_header_clean compiler_uic_clean
 ####### Compile
 
 main.o: ../../main.cpp ../../mainwindow.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMainWindow \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmainwindow.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QSettings \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qsettings.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QApplication \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qapplication.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QFileDialog \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qfiledialog.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMainWindow \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmainwindow.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMessageBox \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmessagebox.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QProcess \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qprocess.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers/QSerialPort \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers/qserialport.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTextStream \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtextstream.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTimer \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtimer.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QFileDialog \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qfiledialog.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QSettings \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qsettings.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QStandardPaths \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qstandardpaths.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMessageBox \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmessagebox.h
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTextStream \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtextstream.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QThread \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qthread.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTimer \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtimer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../../main.cpp
 
 mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMainWindow \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmainwindow.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QSettings \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qsettings.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QApplication \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qapplication.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QFileDialog \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qfiledialog.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMainWindow \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmainwindow.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMessageBox \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmessagebox.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QProcess \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qprocess.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers/QSerialPort \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtSerialPort.framework/Headers/qserialport.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTextStream \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtextstream.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTimer \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtimer.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QFileDialog \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qfiledialog.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QSettings \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qsettings.h \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QStandardPaths \
 		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qstandardpaths.h \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/QMessageBox \
-		/Users/richard2/Qt/6.8.2/macos/lib/QtWidgets.framework/Headers/qmessagebox.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTextStream \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtextstream.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QThread \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qthread.h \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/QTimer \
+		/Users/richard2/Qt/6.8.2/macos/lib/QtCore.framework/Headers/qtimer.h \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../../mainwindow.cpp
 

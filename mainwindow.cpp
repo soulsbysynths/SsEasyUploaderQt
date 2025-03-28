@@ -66,8 +66,11 @@ void MainWindow::populateCombo()
     ui->cboCommPort->clear();
     foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
     {
-        //ui->cboCommPort->addItem(serialPortInfo.systemLocation());
+#ifdef Q_OS_WINDOWS
         ui->cboCommPort->addItem(serialPortInfo.portName());
+#else
+        ui->cboCommPort->addItem(serialPortInfo.systemLocation());
+#endif
     }
 
     ui->cboModule->clear();
