@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = EasyUploader
 TEMPLATE = app
-
+QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
 
 SOURCES += main.cpp\
         mainwindow.cpp
@@ -20,7 +20,6 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
-
 
 macx:ICON = $${PWD}/icon.icns
 win32:RC_ICONS = icon.ico
